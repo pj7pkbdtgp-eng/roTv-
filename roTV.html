@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#080d16">
+<title>roTV</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Manrope:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080d16;--panel:#111a2b;--panel2:#18233a;--text:#eaf0ff;--muted:#8fa0c0;
+  --live:#ff4d6d;--glow:#5ad1ff;
+  --display:'Bricolage Grotesque','Trebuchet MS',system-ui,sans-serif;
+  --body:'Manrope',system-ui,-apple-system,'Segoe UI',sans-serif;
+  color-scheme:dark;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#eef2fb;--panel:#fff;--panel2:#dfe7f7;--text:#0d1730;--muted:#50607f;color-scheme:light}}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);min-height:100vh;
+  background-image:radial-gradient(900px 500px at 85% -10%,rgba(255,77,109,.16),transparent 60%),radial-gradient(700px 500px at -10% 10%,rgba(90,209,255,.12),transparent 60%);
+  background-attachment:fixed}
+.wrap{max-width:1280px;margin:0 auto;padding:20px clamp(16px,4vw,48px) 60px}
+header{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.logo{font-family:var(--display);font-weight:800;font-size:28px;letter-spacing:-.02em;display:flex;align-items:center;gap:10px}
+.logo i{width:34px;height:34px;border-radius:10px;background:var(--live);display:grid;place-items:center;font-style:normal;font-size:15px;color:#fff;box-shadow:0 0 24px rgba(255,77,109,.6)}
+#clock{font-family:var(--display);font-size:22px;color:var(--muted)}
+
+/* hero = live preview of focused item */
+.hero{margin:26px 0 22px;padding:clamp(20px,4vw,40px);border-radius:28px;min-height:210px;position:relative;overflow:hidden;
+  background:linear-gradient(120deg,var(--c1,#1d2b4a),var(--c2,#111a2b));transition:background .35s}
+.hero::after{content:"";position:absolute;right:-60px;top:-60px;width:320px;height:320px;border-radius:50%;background:rgba(255,255,255,.07)}
+.hero small{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:14px;color:#fff;background:rgba(0,0,0,.3);padding:6px 12px;border-radius:99px}
+.hero small b{width:8px;height:8px;border-radius:50%;background:var(--live);animation:pulse 1.4s infinite}
+@keyframes pulse{50%{opacity:.25}}
+.hero h1{font-family:var(--display);font-weight:800;font-size:clamp(34px,6vw,64px);line-height:1;margin:14px 0 8px;letter-spacing:-.03em;color:#fff}
+.hero p{margin:0;max-width:52ch;font-size:clamp(15px,2vw,18px);color:rgba(255,255,255,.85);line-height:1.5}
+.hero .go{margin-top:18px;display:inline-block;background:#fff;color:#0b1020;font-weight:600;padding:10px 20px;border-radius:14px;font-size:15px}
+
+/* tabs + search */
+.bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:22px}
+.tab{font:600 16px var(--body);color:var(--muted);background:var(--panel);border:2px solid transparent;border-radius:99px;padding:10px 20px;cursor:pointer;transition:transform .15s,background .15s}
+.tab[aria-selected="true"]{background:var(--text);color:var(--bg)}
+#q{margin-left:auto;font:400 16px var(--body);color:var(--text);background:var(--panel);border:2px solid transparent;border-radius:99px;padding:10px 18px;width:min(100%,240px)}
+#q::placeholder{color:var(--muted)}
+
+/* tiles */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:20px}
+.tile{position:relative;display:flex;flex-direction:column;justify-content:flex-end;aspect-ratio:16/10;padding:16px;border-radius:20px;text-decoration:none;color:#fff;
+  background:linear-gradient(135deg,var(--c1),var(--c2));transition:transform .18s ease,box-shadow .18s ease}
+.tile .ini{position:absolute;left:14px;top:6px;font-family:var(--display);font-weight:800;font-size:64px;line-height:1;opacity:.28;letter-spacing:-.04em}
+.tile b{font-family:var(--display);font-size:21px;line-height:1.1}
+.tile span.t{font-size:13px;opacity:.85;margin-top:4px}
+.star{position:absolute;right:12px;top:10px;font-size:22px;color:rgba(255,255,255,.55);cursor:pointer;line-height:1}
+.fav .star{color:#ffd24a}
+.free{position:absolute;left:16px;top:16px;font-size:11px;font-weight:600;background:rgba(0,0,0,.35);padding:3px 8px;border-radius:99px;display:none}
+.tile[data-free="1"] .free{display:block}
+.tile[data-free="1"] .ini{display:none}
+
+/* TV focus */
+.tile:focus,.tab:focus,#q:focus{outline:none}
+.tile:focus-visible,.tile:focus{transform:scale(1.07);z-index:2;box-shadow:0 0 0 4px var(--bg),0 0 0 7px var(--glow),0 18px 50px rgba(90,209,255,.35)}
+.tab:focus,#q:focus{border-color:var(--glow);transform:scale(1.06);box-shadow:0 0 24px rgba(90,209,255,.4)}
+.empty{grid-column:1/-1;color:var(--muted);padding:30px 0;font-size:17px}
+.keys{display:flex;gap:18px;flex-wrap:wrap;color:var(--muted);font-size:14px;margin-top:34px}
+kbd{font:600 13px var(--body);background:var(--panel2);color:var(--text);padding:3px 9px;border-radius:8px}
+.note{margin-top:22px;font-size:13px;color:var(--muted);line-height:1.6;max-width:90ch}
+@media (max-width:600px){.grid{grid-template-columns:repeat(2,1fr);gap:12px}.keys{display:none}.tile b{font-size:17px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo"><i>▶</i>roTV</div>
+    <div id="clock" aria-hidden="true"></div>
+  </header>
+
+  <section class="hero" id="hero" aria-live="polite">
+    <small><b></b><span id="hcat">Hub de surse oficiale</span></small>
+    <h1 id="hname">Live your roTV.</h1>
+    <p id="hdesc">Televiziune, filme și desene animate. Toate într-un singur loc.</p>
+    <span class="go" id="hgo">Folosește săgețile și apasă OK</span>
+  </section>
+
+  <nav class="bar" id="tabs" role="tablist" aria-label="Categorii"></nav>
+  <main class="grid" id="grid"></main>
+
+  <div class="keys">
+    <span><kbd>← ↑ ↓ →</kbd> navigare</span>
+    <span><kbd>OK / Enter</kbd> deschide</span>
+    <span><kbd>F</kbd> ★ favorit</span>
+    <span><kbd>Esc</kbd> înapoi la categorii</span>
+    <span><kbd>/</kbd> caută</span>
+  </div>
+  <p class="note"><b>Important:</b> roTV este un hub de linkuri, nu retransmite canale. Disponibilitatea gratuită, transmisiunile live, reclamele și accesul din Germania depind de fiecare furnizor. Unele servicii pot cere cont sau abonament. roTV • Proiect personal • Surse oficiale</p>
+</div>
+
+<script>
+// name, url, categories (live/film/kids), free, hue pair, description
+var DATA=[
+ {n:"TVR+",u:"https://www.tvrplus.ro",c:["live","film","kids"],f:1,a:"#c4162a",b:"#4a0a14",d:"Televiziunea Română: canale live, emisiuni și filme la cerere."},
+ {n:"Digi24",u:"https://www.digi24.ro",c:["live"],f:1,a:"#0a4fb3",b:"#06193d",d:"Știri live direct de pe site-ul oficial."},
+ {n:"B1 TV",u:"https://www.b1tv.ro",c:["live"],f:1,a:"#0e7a6b",b:"#062b27",d:"Știri și emisiuni, cu transmisiune live pe site."},
+ {n:"Digi Play",u:"https://www.digionline.ro",c:["live","film"],f:0,a:"#e4572e",b:"#3d1409",d:"Canale TV și filme. Cere cont Digi."},
+ {n:"Antena Play",u:"https://antenaplay.ro",c:["live","film"],f:0,a:"#d6336c",b:"#3a0f22",d:"Antena 1, seriale și emisiuni. Conținut gratuit și premium."},
+ {n:"Voyo",u:"https://voyo.ro",c:["live","film"],f:0,a:"#7b2ff7",b:"#1e0b43",d:"Pro TV live, seriale și filme. Unele cer abonament."},
+ {n:"Netflix",u:"https://www.netflix.com",c:["film","kids"],f:0,a:"#e50914",b:"#2b0306",d:"Filme și seriale. Cere abonament."},
+ {n:"HBO Max",u:"https://www.hbomax.com",c:["film"],f:0,a:"#5b2bd6",b:"#140a35",d:"Seriale și filme HBO. Cere abonament."},
+ {n:"Disney+",u:"https://www.disneyplus.com",c:["film","kids"],f:0,a:"#1b4fd8",b:"#09163f",d:"Disney, Pixar, Marvel, Star Wars. Cere abonament."},
+ {n:"Prime Video",u:"https://www.primevideo.com",c:["film"],f:0,a:"#0f8fd1",b:"#06293d",d:"Filme și seriale. Cere cont Amazon."},
+ {n:"Pluto TV",u:"https://pluto.tv",c:["live","film","kids"],f:1,a:"#f2c200",b:"#3a2f00",d:"Canale live și filme gratuite, cu reclame. Depinde de țară."},
+ {n:"Tubi",u:"https://tubitv.com",c:["film"],f:1,a:"#ff5a1f",b:"#3a1405",d:"Filme și seriale gratuite, cu reclame. Depinde de țară."},
+ {n:"YouTube Filme",u:"https://www.youtube.com/movies",c:["film"],f:1,a:"#c4302b",b:"#2b0b0a",d:"Filme gratuite cu reclame și filme de închiriat."},
+ {n:"YouTube Kids",u:"https://www.youtube.com/kids/",c:["kids"],f:1,a:"#ff3d71",b:"#3d0b1c",d:"Desene animate și videoclipuri pentru copii."},
+ {n:"Cartoon Network",u:"https://www.cartoonnetwork.ro",c:["kids"],f:1,a:"#18a999",b:"#06302b",d:"Desene animate și jocuri de pe site-ul oficial."}
+];
+var CATS=[["all","Toate"],["live","Live TV"],["film","Filme & seriale"],["kids","Kids"],["free","Opțiuni gratuite"],["fav","Favorite ★"]];
+var cat="all",fav={},tabsEl=document.getElementById("tabs"),grid=document.getElementById("grid"),q=document.getElementById("q");
+try{fav=JSON.parse(localStorage.getItem("rotv-fav")||"{}")}catch(e){fav={}}
+function saveFav(){try{localStorage.setItem("rotv-fav",JSON.stringify(fav))}catch(e){}}
+
+// build tabs + search
+CATS.forEach(function(c){
+  var b=document.createElement("button");b.className="tab";b.textContent=c[1];b.setAttribute("role","tab");b.dataset.cat=c[0];
+  b.setAttribute("aria-selected",c[0]===cat);
+  b.onclick=function(){cat=c[0];[].forEach.call(tabsEl.children,function(t){t.setAttribute("aria-selected",t===b)});render()};
+  b.onfocus=function(){b.click()};
+  tabsEl.appendChild(b);
+});
+q=document.createElement("input");q.id="q";q.type="search";q.placeholder="Caută";q.setAttribute("aria-label","Caută");q.oninput=render;tabsEl.appendChild(q);
+
+function match(d){
+  if(cat==="free"&&!d.f)return false;
+  if(cat==="fav"&&!fav[d.n])return false;
+  if(cat!=="all"&&cat!=="free"&&cat!=="fav"&&d.c.indexOf(cat)<0)return false;
+  var s=q.value.trim().toLowerCase();
+  return !s||d.n.toLowerCase().indexOf(s)>=0;
+}
+function render(){
+  grid.innerHTML="";
+  var list=DATA.filter(match);
+  if(!list.length){grid.innerHTML='<div class="empty">Nu am găsit rezultate.</div>';return}
+  list.forEach(function(d){
+    var a=document.createElement("a");a.className="tile"+(fav[d.n]?" fav":"");a.href=d.u;a.target="_blank";a.rel="noopener noreferrer";
+    a.dataset.free=d.f;a.style.setProperty("--c1",d.a);a.style.setProperty("--c2",d.b);a.dataset.n=d.n;
+    a.innerHTML='<span class="ini">'+d.n.slice(0,2)+'</span><span class="free">Gratuit</span><span class="star" title="Favorit">★</span><b></b><span class="t"></span>';
+    a.querySelector("b").textContent=d.n;
+    a.querySelector(".t").textContent=d.c.map(function(x){return {live:"Live TV",film:"Filme & seriale",kids:"Kids"}[x]}).join(" • ");
+    a.querySelector(".star").onclick=function(e){e.preventDefault();e.stopPropagation();toggleFav(d.n)};
+    a.onfocus=function(){hero(d)};a.onmouseenter=function(){hero(d)};
+    grid.appendChild(a);
+  });
+}
+function hero(d){
+  var h=document.getElementById("hero");h.style.setProperty("--c1",d.a);h.style.setProperty("--c2",d.b);
+  document.getElementById("hname").textContent=d.n;
+  document.getElementById("hdesc").textContent=d.d;
+  document.getElementById("hcat").textContent=d.f?"Opțiune gratuită":"Poate cere cont";
+  document.getElementById("hgo").textContent="Apasă OK pentru a deschide";
+}
+function toggleFav(n){
+  if(fav[n])delete fav[n];else fav[n]=1;saveFav();
+  var focus=document.activeElement&&document.activeElement.dataset?document.activeElement.dataset.n:null;
+  render();
+  if(focus){var t=grid.querySelector('[data-n="'+focus.replace(/"/g,'')+'"]');if(t)t.focus()}
+}
+
+// spatial (D-pad) navigation
+function focusables(){return [].slice.call(document.querySelectorAll(".tab,#q,.tile"))}
+function move(dir){
+  var cur=document.activeElement,all=focusables();
+  if(all.indexOf(cur)<0){var f=grid.querySelector(".tile")||all[0];if(f)f.focus();return}
+  var r=cur.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,best=null,bs=1e9;
+  all.forEach(function(el){
+    if(el===cur)return;var p=el.getBoundingClientRect(),x=p.left+p.width/2,y=p.top+p.height/2,dx=x-cx,dy=y-cy,main,off;
+    if(dir==="Right"){if(dx<=4)return;main=dx;off=Math.abs(dy)}
+    if(dir==="Left"){if(dx>=-4)return;main=-dx;off=Math.abs(dy)}
+    if(dir==="Down"){if(dy<=4)return;main=dy;off=Math.abs(dx)}
+    if(dir==="Up"){if(dy>=-4)return;main=-dy;off=Math.abs(dx)}
+    var s=main+off*2.5;if(s<bs){bs=s;best=el}
+  });
+  if(best){best.focus({preventScroll:true});best.scrollIntoView({block:"center",behavior:"smooth"})}
+}
+document.addEventListener("keydown",function(e){
+  var k=e.key,inInput=document.activeElement===q;
+  if(inInput&&(k==="ArrowLeft"||k==="ArrowRight")&&q.value)return;
+  if(k.indexOf("Arrow")===0){e.preventDefault();move(k.slice(5));return}
+  if(k==="/"&&!inInput){e.preventDefault();q.focus();return}
+  if((k==="Escape"||k==="Backspace"||k==="GoBack")&&!(inInput&&q.value)){
+    if(document.activeElement.classList.contains("tile")){e.preventDefault();tabsEl.querySelector('[aria-selected="true"]').focus()}
+    else if(inInput){q.blur();tabsEl.querySelector('[aria-selected="true"]').focus()}
+    return;
+  }
+  if((k==="f"||k==="F"||k==="ColorF1Green")&&document.activeElement.classList.contains("tile")){e.preventDefault();toggleFav(document.activeElement.dataset.n)}
+  if(k==="Enter"&&document.activeElement.classList.contains("tile")){
+    // keep native anchor open; ensure it works on browsers that skip click on Enter
+    e.preventDefault();window.open(document.activeElement.href,"_blank","noopener");
+  }
+});
+
+// clock
+function tick(){var d=new Date();document.getElementById("clock").textContent=d.toLocaleTimeString("ro-RO",{hour:"2-digit",minute:"2-digit"})}
+tick();setInterval(tick,20000);
+render();
+var first=grid.querySelector(".tile");if(first)first.focus({preventScroll:true});
+</script>
+</body>
+</html>
