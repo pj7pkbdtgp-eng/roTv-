@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#080d16">
+<meta name="description" content="roTV - hub pentru televiziune românească, filme și desene animate din surse oficiale.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<title>roTV</title>
+<style>
+:root{color-scheme:dark;--bg:#070b12;--panel:#101927;--panel2:#142235;--cyan:#00d9ff;--muted:#9aabc0;--line:#20354c}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -15%,#12304a 0,transparent 48%),var(--bg);color:#f4f8ff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
+header{padding:calc(18px + env(safe-area-inset-top)) 18px 14px;max-width:900px;margin:auto}
+.brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:2px;font-size:14px;color:var(--cyan)}
+.logo{width:35px;height:35px;border:1px solid #087e9d;border-radius:11px;display:grid;place-items:center;background:#0d2332;box-shadow:0 0 20px #00d9ff22}
+h1{font-size:clamp(30px,8vw,48px);line-height:1;margin:23px 0 8px;letter-spacing:-1.5px}
+.sub{color:var(--muted);font-size:14px;line-height:1.5}
+.status{display:inline-flex;align-items:center;gap:7px;color:#a6f5d0;font-size:11px;letter-spacing:1px;margin-top:13px}
+.dot{width:7px;height:7px;background:#35e69b;border-radius:50%;box-shadow:0 0 10px #35e69b}
+main{max-width:900px;margin:auto;padding:0 16px 40px}
+.search{width:100%;background:#0d1724;border:1px solid var(--line);border-radius:14px;padding:15px 16px;color:white;font-size:16px;outline:none;margin:12px 0 17px}
+.search:focus{border-color:var(--cyan);box-shadow:0 0 0 3px #00d9ff18}
+.tabs{display:flex;gap:8px;overflow:auto;padding:0 0 14px;scrollbar-width:none}
+.tabs button{white-space:nowrap;border:1px solid var(--line);border-radius:999px;background:#0d1724;color:#b8c8d9;padding:10px 14px;font-size:13px}
+.tabs button.active{background:#073044;border-color:#087f9f;color:#7cecff}
+.sectionhead{display:flex;align-items:center;justify-content:space-between;margin:13px 2px}
+h2{font-size:17px;margin:0}
+.count{font-size:11px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.card{background:linear-gradient(145deg,#142235,#0d1622);border:1px solid var(--line);border-radius:17px;padding:15px;min-height:130px;display:flex;flex-direction:column;justify-content:space-between;gap:13px}
+.cardtop{display:flex;align-items:center;justify-content:space-between}
+.symbol{width:39px;height:39px;border-radius:12px;background:#092d40;color:var(--cyan);display:grid;place-items:center;font-size:17px;font-weight:800}
+.tag{font-size:9px;letter-spacing:.8px;color:#93a9bd;border:1px solid #294158;padding:5px 7px;border-radius:99px}
+.card h3{font-size:15px;margin:0 0 4px}
+.card p{font-size:11px;color:var(--muted);margin:0;line-height:1.4}
+.actions{display:flex;gap:7px}
+.open{flex:1;text-align:center;text-decoration:none;background:#06394c;border:1px solid #087c9a;color:#a8f4ff;border-radius:10px;padding:10px 8px;font-size:12px;font-weight:700}
+.fav{width:40px;border:1px solid var(--line);border-radius:10px;background:#101c2a;color:#b7c9d9;font-size:18px}
+.fav.on{color:#ffcf70;border-color:#80612b}
+.note{margin:20px 1px 0;padding:13px;border:1px solid #26394d;background:#0d1722;border-radius:13px;color:#9fb1c4;font-size:11px;line-height:1.55}
+footer{text-align:center;color:#65798e;font-size:10px;padding:25px 10px calc(20px + env(safe-area-inset-bottom))}
+.empty{display:none;color:var(--muted);text-align:center;padding:30px}
+@media(min-width:620px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="logo">▶</div> roTV</div>
+  <h1>LIVE YOUR<br><span style="color:var(--cyan)">roTV</span>.</h1>
+  <div class="sub">Televiziune, filme și desene animate. Toate într-un singur loc.</div>
+  <div class="status"><span class="dot"></span> HUB DE SURSE OFICIALE</div>
+</header>
+<main>
+  <input id="search" class="search" type="search" placeholder="Caută un canal sau o categorie..." aria-label="Caută">
+  <nav class="tabs" aria-label="Categorii">
+    <button class="active" data-filter="all">Toate</button>
+    <button data-filter="live">Live TV</button>
+    <button data-filter="movies">Filme & seriale</button>
+    <button data-filter="kids">Kids</button>
+    <button data-filter="free">Opțiuni gratuite</button>
+    <button data-filter="favorites">Favorite ★</button>
+  </nav>
+  <div class="sectionhead"><h2 id="sectionTitle">Canale și platforme</h2><span class="count" id="count"></span></div>
+  <section class="grid" id="grid"></section>
+  <div class="empty" id="empty">Nu am găsit rezultate.</div>
+  <div class="note"><b>Important:</b> roTV este un hub de linkuri, nu retransmite canale. Disponibilitatea gratuită, transmisiunile live, reclamele și accesul din Germania depind de fiecare furnizor. Unele servicii pot cere cont sau abonament. Aplicația nu elimină reclamele furnizorilor.</div>
+</main>
+<footer>roTV • Proiect personal • Surse oficiale</footer>
+<script>
+const items=[
+ {name:"PRO TV",cat:"live",icon:"▶",desc:"Site-ul oficial PRO TV și transmisiuni disponibile online.",url:"https://www.protv.ro/",tag:"OFICIAL"},
+ {name:"Antena 1",cat:"live",icon:"A1",desc:"AntenaPLAY pentru canale și emisiuni Antena.",url:"https://antenaplay.ro/",tag:"CONT / POSIBIL PLATĂ"},
+ {name:"Kanal D",cat:"live",icon:"K",desc:"Pagina oficială Kanal D și conținut video.",url:"https://www.kanald.ro/",tag:"OFICIAL"},
+ {name:"Digi Sport",cat:"live",icon:"DS",desc:"Știri și transmisiuni prin serviciile DIGI, unde sunt disponibile.",url:"https://www.digisport.ro/",tag:"ACCES LIMITAT"},
+ {name:"Prima TV",cat:"live",icon:"P",desc:"Prima Play pentru programe și conținut Prima.",url:"https://www.primaplay.ro/",tag:"CONT / POSIBIL PLATĂ"},
+ {name:"TVR 1 & TVR 2",cat:"live",icon:"TVR",desc:"Platforma online oficială TVR+.",url:"https://tvrplus.ro/",tag:"GRATUIT*"},
+ {name:"Filme & seriale",cat:"movies",icon:"▶",desc:"Rakuten TV are și o selecție gratuită cu reclame.",url:"https://www.rakuten.tv/",tag:"GRATUIT CU RECLAME"},
+ {name:"Desene animate",cat:"kids",icon:"KIDS",desc:"YouTube Kids. Conținutul și reclamele variază.",url:"https://www.youtubekids.com/",tag:"GRATUIT"},
+ {name:"Digi24",cat:"live",icon:"24",desc:"Știri live și video de la Digi24.",url:"https://www.digi24.ro/",tag:"GRATUIT*"}
+];
+let filter="all";let favorites=JSON.parse(localStorage.getItem("rtv-favs")||"[]");
+const grid=document.getElementById("grid"),search=document.getElementById("search"),empty=document.getElementById("empty"),count=document.getElementById("count");
+function render(){
+ const q=search.value.toLowerCase().trim();
+ const shown=items.filter(x=>(filter==="all"||(filter==="favorites"?favorites.includes(x.name):filter==="free"?["TVR 1 & TVR 2","Filme & seriale","Desene animate","Digi24"].includes(x.name):x.cat===filter))&&(x.name+" "+x.desc).toLowerCase().includes(q));
+ grid.innerHTML=shown.map(x=>`<article class="card"><div class="cardtop"><div class="symbol">${x.icon}</div><span class="tag">${x.tag}</span></div><div><h3>${x.name}</h3><p>${x.desc}</p></div><div class="actions"><a class="open" href="${x.url}" target="_blank" rel="noopener noreferrer">Deschide ↗</a><button class="fav ${favorites.includes(x.name)?"on":""}" aria-label="Adaugă la favorite" data-fav="${x.name}">${favorites.includes(x.name)?"★":"☆"}</button></div></article>`).join("");
+ count.textContent=shown.length+" rezultate";empty.style.display=shown.length?"none":"block";
+}
+document.querySelectorAll(".tabs button").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".tabs button").forEach(x=>x.classList.remove("active"));b.classList.add("active");filter=b.dataset.filter;document.getElementById("sectionTitle").textContent=b.textContent;render()}));
+search.addEventListener("input",render);
+grid.addEventListener("click",e=>{const b=e.target.closest("[data-fav]");if(!b)return;const n=b.dataset.fav;favorites=favorites.includes(n)?favorites.filter(x=>x!==n):[...favorites,n];localStorage.setItem("rtv-favs",JSON.stringify(favorites));render()});
+if("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("./sw.js").catch(()=>{});
+render();
+</script>
+</body>
+</html>
