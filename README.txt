@@ -8,5 +8,7 @@ Pentru instalare ca aplicație:
 2. Deschide adresa HTTPS în Safari pe iPhone.
 3. Apasă Share -> Add to Home Screen -> Add.
 
-Notă: funcțiile PWA complete necesită HTTPS.
-Accesul la conținut depinde de fiecare furnizor și de regiune.
+# roTv-
+The link is below just add to Home Screen and your Finnish it’s availabile for iphone etc 👇
+https://pj7pkbdtgp-eng.github.io/roTv-/
+
