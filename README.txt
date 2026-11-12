@@ -10,5 +10,4 @@ Pentru instalare ca aplicație:
 
 # roTv-
 The link is below just add to Home Screen and your Finnish it’s availabile for iphone etc 👇
-https://pj7pkbdtgp-eng.github.io/roTv-/
 
